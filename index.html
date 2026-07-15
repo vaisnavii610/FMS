@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Training Feedback Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B2A4A;
+    --navy-2:#123457;
+    --blue:#1E5AA8;
+    --sky:#4FA8E8;
+    --gray-bg:#F4F6F9;
+    --gray-line:#DCE3EC;
+    --white:#FFFFFF;
+    --ink:#1B2733;
+    --ink-soft:#5B6B7C;
+    --amber:#F5A623;
+    --green:#1FAA6D;
+    --red:#E14B4B;
+    --radius:14px;
+    --shadow:0 8px 24px rgba(11,42,74,.08);
+    --shadow-lg:0 16px 40px rgba(11,42,74,.14);
+    color-scheme: light;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',sans-serif;background:var(--gray-bg);color:var(--ink);transition:background .35s ease,color .35s ease;padding-bottom:60px;overflow-x:hidden;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes headerDrop{from{opacity:0;transform:translateY(-100%);}to{opacity:1;transform:translateY(0);}}
+  @keyframes popIn{0%{opacity:0;transform:scale(.85);}70%{transform:scale(1.04);}100%{opacity:1;transform:scale(1);}}
+  @keyframes bounceIn{0%{opacity:0;transform:scale(.4) rotate(-15deg);}60%{opacity:1;transform:scale(1.15) rotate(6deg);}100%{transform:scale(1) rotate(0);}}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  @keyframes pulseGlow{0%,100%{box-shadow:0 6px 16px rgba(30,90,168,.3);}50%{box-shadow:0 6px 26px rgba(30,90,168,.55);}}
+  @keyframes shake{10%,90%{transform:translateX(-1px);}20%,80%{transform:translateX(2px);}30%,50%,70%{transform:translateX(-4px);}40%,60%{transform:translateX(4px);}}
+  @keyframes spinIn{from{opacity:0;transform:rotate(-90deg) scale(.6);}to{opacity:1;transform:rotate(0) scale(1);}}
+
+  header{animation:headerDrop .6s cubic-bezier(.22,1,.36,1);}
+  .logo{animation:float 3.2s ease-in-out infinite;}
+  .wrap{animation:fadeIn .5s ease;}
+  .view.active .panel{animation:fadeUp .55s cubic-bezier(.22,1,.36,1) both;}
+  .stats .stat-card{animation:fadeUp .55s cubic-bezier(.22,1,.36,1) both;}
+  .stats .stat-card:nth-child(1){animation-delay:.05s;}
+  .stats .stat-card:nth-child(2){animation-delay:.12s;}
+  .stats .stat-card:nth-child(3){animation-delay:.19s;}
+  .stats .stat-card:nth-child(4){animation-delay:.26s;}
+  .stat-card{transition:transform .25s ease, box-shadow .25s ease;}
+  .stat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+
+  .tab-btn{transition:background .25s ease, color .25s ease, transform .15s ease;}
+  .tab-btn:active{transform:scale(.94);}
+  .tab-btn.active{animation:popIn .35s ease;}
+
+  .field{animation:fadeUp .4s ease both;}
+  .field input,.field select,.field textarea{transition:border-color .2s, box-shadow .2s, transform .15s;}
+  .field input:focus,.field select:focus,.field textarea:focus{transform:translateY(-1px);}
+  .field.error{animation:shake .4s ease;}
+
+  .stars span{transition:transform .18s cubic-bezier(.34,1.56,.64,1), color .15s;}
+  .stars span.filled{animation:popIn .25s ease;}
+
+  .btn{position:relative;overflow:hidden;transition:transform .18s ease, box-shadow .18s ease;}
+  .btn:hover{animation:pulseGlow 1.4s ease infinite;}
+  .btn:active{transform:scale(.97) translateY(0);}
+  .icon-btn,.export-btn,.logout-btn{transition:transform .15s ease, background .2s ease;}
+  .icon-btn:active,.export-btn:active,.logout-btn:active{transform:scale(.93);}
+
+  .success-card .big{animation:bounceIn .7s cubic-bezier(.22,1,.36,1);}
+  .lock-icon{animation:bounceIn .6s cubic-bezier(.22,1,.36,1);}
+
+  .ring .fg{transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1);}
+
+  tbody tr{animation:fadeUp .35s ease both;}
+  tbody tr:hover{transform:translateX(2px);}
+  tbody tr{transition:transform .15s ease, background .15s ease;}
+
+  .panel h2::before{animation:spinIn .5s cubic-bezier(.22,1,.36,1);}
+
+  .pagination button{transition:transform .15s ease, background .2s ease;}
+  .pagination button:active{transform:scale(.9);}
+
+  .empty-state{animation:fadeIn .5s ease;}
+  .empty-state .big{animation:float 2.6s ease-in-out infinite;}
+
+  @media (prefers-reduced-motion: reduce){
+    header,.logo,.wrap,.view.active .panel,.stats .stat-card,.tab-btn.active,.field,.field.error,
+    .stars span.filled,.btn:hover,.success-card .big,.lock-icon,tbody tr,.panel h2::before,.empty-state .big{
+      animation:none !important;
+    }
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  h1,h2,h3,.brand-name{font-family:'Poppins',sans-serif;}
+
+  header{
+    background:linear-gradient(120deg,var(--navy),var(--navy-2));color:#fff;padding:16px 32px;
+    display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-lg);
+    position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:14px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .logo{width:44px;height:44px;border-radius:10px;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:700;font-size:18px;color:var(--navy);box-shadow:0 4px 12px rgba(0,0,0,.25);}
+  .brand-text .brand-name{font-size:19px;font-weight:600;letter-spacing:.2px;}
+  .brand-text .brand-sub{font-size:12px;opacity:.75;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+
+  .header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+
+  .tabs{display:flex;background:rgba(255,255,255,.12);border-radius:30px;padding:4px;border:1px solid rgba(255,255,255,.2);}
+  .tab-btn{
+    padding:8px 18px;border:none;background:transparent;color:inherit;font-weight:600;font-size:13px;
+    border-radius:24px;cursor:pointer;transition:background .2s;
+  }
+  .tab-btn.active{background:var(--sky);color:var(--navy);}
+
+
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 24px 0;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---------- EMPLOYEE VIEW ---------- */
+  .center-wrap{max-width:640px;margin:0 auto;}
+  .panel{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-line);padding:26px;}
+  .panel h2{font-size:16px;color:var(--navy);margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+  .panel h2::before{content:"";width:6px;height:18px;background:var(--sky);border-radius:3px;display:inline-block;}
+
+  .field{margin-bottom:14px;}
+  #feedbackForm > .field:nth-child(1),#feedbackForm > .two-col:nth-child(2) .field{animation-delay:.05s;}
+  #feedbackForm .field:nth-of-type(4),#feedbackForm .two-col:nth-of-type(2) .field{animation-delay:.1s;}
+  #feedbackForm .field[data-f="rating"]{animation-delay:.15s;}
+  #feedbackForm .field[data-f="comment"]{animation-delay:.2s;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+  .field input,.field select,.field textarea{width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gray-line);background:var(--gray-bg);color:var(--ink);font-size:14px;font-family:'Inter',sans-serif;transition:border-color .2s, box-shadow .2s;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--sky);box-shadow:0 0 0 3px rgba(79,168,232,.18);}
+  .field textarea{min-height:70px;resize:vertical;}
+  .field.error input,.field.error select,.field.error textarea{border-color:var(--red);}
+  .field .err-msg{color:var(--red);font-size:11.5px;margin-top:4px;display:none;font-weight:500;}
+  .field.error .err-msg{display:block;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  .stars{display:flex;gap:6px;font-size:26px;user-select:none;}
+  .stars span{cursor:pointer;color:var(--gray-line);transition:transform .15s, color .15s;}
+  .stars span:hover{transform:scale(1.15);}
+  .stars span.filled{color:var(--amber);}
+
+  .btn{width:100%;padding:12px;border:none;border-radius:9px;background:linear-gradient(120deg,var(--blue),var(--navy));color:#fff;font-weight:600;font-size:14.5px;cursor:pointer;letter-spacing:.2px;box-shadow:0 6px 16px rgba(30,90,168,.3);transition:transform .15s, box-shadow .15s;}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(30,90,168,.4);}
+  .btn.secondary{background:var(--gray-bg);color:var(--ink);border:1.5px solid var(--gray-line);box-shadow:none;margin-top:8px;}
+  .btn.secondary:hover{transform:none;background:var(--gray-line);}
+
+  .success-card{text-align:center;padding:50px 20px;}
+  .success-card .big{font-size:52px;margin-bottom:14px;}
+  .success-card h3{color:var(--navy);margin-bottom:8px;}
+  .success-card p{color:var(--ink-soft);font-size:14px;margin-bottom:20px;}
+
+  /* ---------- ADMIN LOGIN ---------- */
+  .login-wrap{max-width:380px;margin:60px auto 0;}
+  .login-wrap .panel{text-align:center;}
+  .login-wrap .lock-icon{font-size:38px;margin-bottom:10px;}
+  .login-wrap p.sub{color:var(--ink-soft);font-size:13px;margin-bottom:20px;}
+  .login-err{color:var(--red);font-size:12.5px;margin-top:10px;display:none;font-weight:500;}
+
+  /* ---------- STAT CARDS ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px;}
+  .stat-card{background:var(--white);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);border:1px solid var(--gray-line);display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;}
+  .stat-card .label{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);font-weight:600;}
+  .stat-card .value{font-size:30px;font-weight:700;font-family:'Poppins',sans-serif;color:var(--navy);}
+  .stat-card .value.rating{display:flex;align-items:baseline;gap:6px;}
+  .stat-card .value .unit{font-size:14px;color:var(--ink-soft);font-weight:500;}
+  .ring{position:absolute;right:14px;top:14px;width:46px;height:46px;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring circle{fill:none;stroke-width:5;}
+  .ring .bg{stroke:var(--gray-line);}
+  .ring .fg{stroke:var(--sky);stroke-linecap:round;transition:stroke-dashoffset .8s ease;}
+
+  .admin-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+  .admin-topbar h1{font-size:20px;color:var(--navy);}
+  .logout-btn{padding:8px 16px;border-radius:8px;border:1.5px solid var(--gray-line);background:var(--white);color:var(--red);font-weight:600;font-size:12.5px;cursor:pointer;}
+  .logout-btn:hover{background:var(--gray-line);}
+
+  .table-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:180px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px 10px 34px;border-radius:8px;border:1.5px solid var(--gray-line);background:var(--gray-bg);color:var(--ink);font-size:13.5px;}
+  .search-box::before{content:"⌕";position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-soft);font-size:16px;}
+  .export-btn{padding:10px 16px;border-radius:8px;border:1.5px solid var(--gray-line);background:var(--gray-bg);color:var(--navy);font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+  .export-btn:hover{background:var(--gray-line);}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{background:var(--navy);color:#fff;padding:12px 10px;text-align:left;font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;}
+  thead th:first-child{border-radius:8px 0 0 0;}
+  thead th:last-child{border-radius:0 8px 0 0;}
+  tbody td{padding:11px 10px;border-bottom:1px solid var(--gray-line);color:var(--ink);vertical-align:middle;}
+  tbody tr{transition:background .15s;}
+  tbody tr:hover{background:var(--gray-bg);}
+  .rating-pill{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:var(--amber);}
+  .row-actions{display:flex;gap:6px;}
+  .icon-btn{border:none;background:var(--gray-bg);border-radius:6px;padding:6px 9px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--blue);}
+  .icon-btn.del{color:var(--red);}
+  .icon-btn:hover{background:var(--gray-line);}
+  .empty-state{text-align:center;padding:40px 20px;color:var(--ink-soft);}
+  .empty-state .big{font-size:34px;margin-bottom:8px;}
+  .timestamp{font-size:11.5px;color:var(--ink-soft);}
+
+  .pagination{display:flex;justify-content:center;gap:6px;margin-top:18px;}
+  .pagination button{width:32px;height:32px;border-radius:7px;border:1.5px solid var(--gray-line);background:var(--gray-bg);color:var(--ink);cursor:pointer;font-size:13px;font-weight:600;}
+  .pagination button.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .pagination button:hover:not(.active){background:var(--gray-line);}
+
+  #toastBox{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:200;}
+  .toast{background:var(--navy);color:#fff;padding:13px 18px;border-radius:9px;font-size:13.5px;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;min-width:230px;animation:slideIn .35s ease;}
+  .toast.success{border-left:4px solid var(--green);}
+  .toast.error{border-left:4px solid var(--red);}
+  .toast.fade{animation:fadeOut .35s ease forwards;}
+  @keyframes slideIn{from{transform:translateX(40px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+  @keyframes fadeOut{to{opacity:0;transform:translateX(40px);}}
+  @media (prefers-reduced-motion: reduce){*{animation-duration:.001s !important; transition-duration:.001s !important;}}
+
+  /* ============ RESPONSIVE ============ */
+  @media(max-width:920px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .wrap{padding:24px 16px 0;}
+  }
+
+  @media(max-width:680px){
+    header{padding:14px 16px;}
+    .brand{gap:10px;}
+    .logo{width:38px;height:38px;font-size:15px;}
+    .brand-text .brand-name{font-size:15.5px;}
+    .brand-text .brand-sub{font-size:10px;}
+    .header-right{width:100%;justify-content:space-between;gap:8px;}
+    .tabs{flex:1;}
+    .tab-btn{flex:1;padding:8px 10px;font-size:12px;text-align:center;}
+
+    .wrap{padding:18px 12px 0;}
+    .panel{padding:18px;}
+    .two-col{grid-template-columns:1fr;gap:0;}
+    .stars{font-size:30px;}
+
+    .stats{grid-template-columns:1fr 1fr;gap:12px;}
+    .stat-card{padding:16px;}
+    .stat-card .value{font-size:24px;}
+    .ring{width:38px;height:38px;right:12px;top:12px;}
+    .ring svg{width:38px;height:38px;}
+
+    .admin-topbar{flex-wrap:wrap;gap:10px;}
+    .admin-topbar h1{font-size:17px;}
+
+    .table-head{flex-direction:column;align-items:stretch;}
+    .export-btn{justify-content:center;}
+
+    #tableWrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    table{min-width:640px;}
+
+    .login-wrap{margin:30px auto 0;max-width:100%;}
+
+    #toastBox{left:12px;right:12px;bottom:16px;}
+    .toast{min-width:0;width:100%;}
+  }
+
+  @media(max-width:400px){
+    .stats{grid-template-columns:1fr;}
+    .brand-text .brand-sub{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">AB</div>
+    <div class="brand-text">
+      <div class="brand-name">AB InfoTech Solutions</div>
+      <div class="brand-sub mono">HR · TRAINING FEEDBACK CONSOLE</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="tabs">
+      <button class="tab-btn active" id="tabEmployeeBtn" onclick="switchTab('employee')">Employee</button>
+      <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">Admin</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ================= EMPLOYEE VIEW ================= -->
+  <div class="view active" id="view-employee">
+    <div class="center-wrap">
+      <div class="panel" id="employeeFormPanel">
+        <h2 id="formTitle">Submit Training Feedback</h2>
+        <form id="feedbackForm" novalidate>
+          <div class="field" data-f="empName">
+            <label>Employee Name</label>
+            <input type="text" id="empName" placeholder="e.g. Rohan Deshmukh">
+            <div class="err-msg">Please enter the employee name.</div>
+          </div>
+          <div class="two-col">
+            <div class="field" data-f="empId">
+              <label>Employee ID</label>
+              <input type="text" id="empId" placeholder="EMP-0245">
+              <div class="err-msg">Employee ID is required.</div>
+            </div>
+            <div class="field" data-f="department">
+              <label>Department</label>
+              <select id="department">
+                <option value="">Select</option>
+                <option>Development</option><option>Testing</option><option>HR</option>
+                <option>Support</option><option>Marketing</option>
+              </select>
+              <div class="err-msg">Select a department.</div>
+            </div>
+          </div>
+          <div class="field" data-f="email">
+            <label>Official Email</label>
+            <input type="email" id="email" placeholder="name@company.com">
+            <div class="err-msg">Enter a valid official email.</div>
+          </div>
+          <div class="two-col">
+            <div class="field" data-f="training">
+              <label>Training Program</label>
+              <select id="training">
+                <option value="">Select</option>
+                <option>Java Full Stack</option><option>Python</option>
+                <option>Cloud Computing</option><option>AI & ML</option><option>Cyber Security</option>
+              </select>
+              <div class="err-msg">Select a training program.</div>
+            </div>
+            <div class="field" data-f="trainer">
+              <label>Trainer Name</label>
+              <input type="text" id="trainer" placeholder="e.g. Mrs. Kulkarni">
+              <div class="err-msg">Trainer name is required.</div>
+            </div>
+          </div>
+          <div class="field" data-f="rating">
+            <label>Feedback Rating</label>
+            <div class="stars" id="starInput">
+              <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+            </div>
+            <div class="err-msg">Please select a star rating.</div>
+          </div>
+          <div class="field" data-f="comment">
+            <label>Feedback / Suggestions</label>
+            <textarea id="comment" placeholder="Share thoughts on the training, trainer, and suggestions..."></textarea>
+            <div class="err-msg">Feedback comment cannot be empty.</div>
+          </div>
+          <button type="submit" class="btn" id="submitBtn">Submit Feedback</button>
+        </form>
+      </div>
+
+      <div class="panel success-card" id="successPanel" style="display:none;">
+        <div class="big">✅</div>
+        <h3>Thank you for your feedback!</h3>
+        <p>Your response has been recorded successfully.</p>
+        <button class="btn secondary" onclick="resetEmployeeForm()">Submit Another Response</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN LOGIN ================= -->
+  <div class="view" id="view-admin-login">
+    <div class="login-wrap">
+      <div class="panel">
+        <div class="lock-icon">🔒</div>
+        <h2 style="justify-content:center;">Admin Login</h2>
+        <p class="sub">Enter the admin password to access the HR dashboard.</p>
+        <form id="adminLoginForm">
+          <div class="field">
+            <input type="password" id="adminPassword" placeholder="Admin password">
+          </div>
+          <button type="submit" class="btn">Login</button>
+          <div class="login-err" id="loginErr">Incorrect password. Try again.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN DASHBOARD ================= -->
+  <div class="view" id="view-admin-dashboard">
+    <div class="admin-topbar">
+      <h1>HR Dashboard</h1>
+      <button class="logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">Total Feedback</div>
+        <div class="value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Average Rating</div>
+        <div class="value rating"><span id="statAvg">0.0</span><span class="unit">/ 5</span></div>
+        <div class="ring">
+          <svg viewBox="0 0 46 46" style="width:100%;height:100%;">
+            <circle class="bg" cx="23" cy="23" r="18"></circle>
+            <circle class="fg" id="ringFg" cx="23" cy="23" r="18" stroke-dasharray="113" stroke-dashoffset="113"></circle>
+          </svg>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Departments Covered</div>
+        <div class="value" id="statDept">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">This Week</div>
+        <div class="value" id="statWeek">0</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Feedback Records</h2>
+      <div class="table-head">
+        <div class="search-box">
+          <input type="text" id="search" placeholder="Search by name, ID, department, training...">
+        </div>
+        <button class="export-btn" id="exportBtn">⬇ Export CSV</button>
+      </div>
+      <div id="tableWrap">
+        <table>
+          <thead>
+            <tr><th>Employee</th><th>Department</th><th>Training</th><th>Rating</th><th>Submitted</th><th>Action</th></tr>
+          </thead>
+          <tbody id="tableData"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- EDIT PANEL (hidden by default) -->
+    <div class="panel" id="editPanel" style="display:none;margin-top:24px;max-width:640px;">
+      <h2>Edit Feedback Record</h2>
+      <form id="editForm" novalidate>
+        <input type="hidden" id="editId">
+        <div class="field" data-f="e_empName"><label>Employee Name</label><input type="text" id="e_empName"><div class="err-msg">Required.</div></div>
+        <div class="two-col">
+          <div class="field" data-f="e_empId"><label>Employee ID</label><input type="text" id="e_empId"><div class="err-msg">Required.</div></div>
+          <div class="field" data-f="e_department"><label>Department</label>
+            <select id="e_department"><option value="">Select</option><option>Development</option><option>Testing</option><option>HR</option><option>Support</option><option>Marketing</option></select>
+            <div class="err-msg">Required.</div>
+          </div>
+        </div>
+        <div class="field" data-f="e_email"><label>Official Email</label><input type="email" id="e_email"><div class="err-msg">Enter a valid email.</div></div>
+        <div class="two-col">
+          <div class="field" data-f="e_training"><label>Training Program</label>
+            <select id="e_training"><option value="">Select</option><option>Java Full Stack</option><option>Python</option><option>Cloud Computing</option><option>AI & ML</option><option>Cyber Security</option></select>
+            <div class="err-msg">Required.</div>
+          </div>
+          <div class="field" data-f="e_trainer"><label>Trainer Name</label><input type="text" id="e_trainer"><div class="err-msg">Required.</div></div>
+        </div>
+        <div class="field" data-f="e_rating"><label>Feedback Rating</label>
+          <div class="stars" id="e_starInput">
+            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+          </div>
+          <div class="err-msg">Select a rating.</div>
+        </div>
+        <div class="field" data-f="e_comment"><label>Feedback / Suggestions</label><textarea id="e_comment"></textarea><div class="err-msg">Required.</div></div>
+        <button type="submit" class="btn">Save Changes</button>
+        <button type="button" class="btn secondary" onclick="closeEditPanel()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<div id="toastBox"></div>
+
+<script>
+/* ---------------- CONFIG ---------------- */
+const ADMIN_PASSWORD = "admin123"; // change this to your own password
+const PAGE_SIZE = 6;
+let currentPage = 1;
+let selectedStars = 0;
+let editSelectedStars = 0;
+
+/* ---------------- TAB SWITCHING ---------------- */
+function switchTab(tab){
+  document.getElementById("tabEmployeeBtn").classList.toggle("active", tab==="employee");
+  document.getElementById("tabAdminBtn").classList.toggle("active", tab==="admin");
+  document.getElementById("view-employee").classList.toggle("active", tab==="employee");
+
+  if(tab === "employee"){
+    document.getElementById("view-admin-login").classList.remove("active");
+    document.getElementById("view-admin-dashboard").classList.remove("active");
+  } else {
+    const loggedIn = sessionStorage.getItem("adminLoggedIn") === "true";
+    document.getElementById("view-admin-login").classList.toggle("active", !loggedIn);
+    document.getElementById("view-admin-dashboard").classList.toggle("active", loggedIn);
+    if(loggedIn) render();
+  }
+}
+
+/* ---------------- THEME ---------------- */
+/* ---------------- ADMIN LOGIN ---------------- */
+document.getElementById("adminLoginForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const pass = document.getElementById("adminPassword").value;
+  if(pass === ADMIN_PASSWORD){
+    sessionStorage.setItem("adminLoggedIn", "true");
+    document.getElementById("loginErr").style.display = "none";
+    document.getElementById("adminPassword").value = "";
+    switchTab("admin");
+    toast("Welcome back, Admin");
+  } else {
+    document.getElementById("loginErr").style.display = "block";
+  }
+});
+function adminLogout(){
+  sessionStorage.removeItem("adminLoggedIn");
+  switchTab("admin");
+  toast("Logged out", "error");
+}
+
+/* ---------------- STORAGE HELPERS ---------------- */
+function getList(){ return JSON.parse(localStorage.getItem("feedbackRecords")) || []; }
+function saveList(list){ localStorage.setItem("feedbackRecords", JSON.stringify(list)); }
+
+/* ---------------- EMPLOYEE FORM: STAR INPUT ---------------- */
+const starWrap = document.getElementById("starInput");
+const stars = starWrap.querySelectorAll("span");
+stars.forEach(s=>{
+  s.addEventListener("click", ()=>{ selectedStars = parseInt(s.dataset.v); renderStars(stars, selectedStars); clearFieldError("rating"); });
+  s.addEventListener("mouseenter", ()=> previewStars(stars, parseInt(s.dataset.v)));
+});
+starWrap.addEventListener("mouseleave", ()=> renderStars(stars, selectedStars));
+
+function previewStars(list, v){ list.forEach(s=> s.classList.toggle("filled", parseInt(s.dataset.v) <= v)); }
+function renderStars(list, val){ list.forEach(s=> s.classList.toggle("filled", parseInt(s.dataset.v) <= val)); }
+
+/* ---------------- VALIDATION ---------------- */
+function setFieldError(name, on){
+  const el = document.querySelector(`[data-f="${name}"]`);
+  if(el) el.classList.toggle("error", on);
+}
+function clearFieldError(name){ setFieldError(name, false); }
+function clearAllErrors(scope){
+  (scope || document).querySelectorAll(".field").forEach(f=>f.classList.remove("error"));
+}
+
+function validateData(data, prefix){
+  let ok = true;
+  if(!data.name.trim()){ setFieldError(prefix+"empName", true); ok=false; }
+  if(!data.id.trim()){ setFieldError(prefix+"empId", true); ok=false; }
+  if(!data.department){ setFieldError(prefix+"department", true); ok=false; }
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
+  if(!emailOk){ setFieldError(prefix+"email", true); ok=false; }
+  if(!data.training){ setFieldError(prefix+"training", true); ok=false; }
+  if(!data.trainer.trim()){ setFieldError(prefix+"trainer", true); ok=false; }
+  if(!data.rating){ setFieldError(prefix+"rating", true); ok=false; }
+  if(!data.comment.trim()){ setFieldError(prefix+"comment", true); ok=false; }
+  return ok;
+}
+
+/* ---------------- TOASTS ---------------- */
+function toast(msg, type="success"){
+  const box = document.getElementById("toastBox");
+  const t = document.createElement("div");
+  t.className = "toast " + type;
+  t.textContent = (type==="success" ? "✓ " : "✕ ") + msg;
+  box.appendChild(t);
+  setTimeout(()=>{ t.classList.add("fade"); setTimeout(()=> t.remove(), 350); }, 2600);
+}
+
+/* ---------------- EMPLOYEE FORM SUBMIT ---------------- */
+const form = document.getElementById("feedbackForm");
+form.addEventListener("submit", function(e){
+  e.preventDefault();
+  clearAllErrors();
+
+  const data = {
+    name: empName.value, id: empId.value, email: email.value,
+    department: department.value, training: training.value, trainer: trainer.value,
+    rating: selectedStars, comment: comment.value
+  };
+
+  if(!validateData(data, "")){
+    toast("Please fix the highlighted fields", "error");
+    return;
+  }
+
+  let list = getList();
+  data.recordId = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  data.timestamp = new Date().toISOString();
+  list.push(data);
+  saveList(list);
+
+  form.reset();
+  selectedStars = 0;
+  renderStars(stars, 0);
+  document.getElementById("employeeFormPanel").style.display = "none";
+  document.getElementById("successPanel").style.display = "block";
+});
+
+function resetEmployeeForm(){
+  document.getElementById("employeeFormPanel").style.display = "block";
+  document.getElementById("successPanel").style.display = "none";
+}
+
+/* ---------------- ADMIN: EDIT PANEL STARS ---------------- */
+const eStarWrap = document.getElementById("e_starInput");
+const eStars = eStarWrap.querySelectorAll("span");
+eStars.forEach(s=>{
+  s.addEventListener("click", ()=>{ editSelectedStars = parseInt(s.dataset.v); renderStars(eStars, editSelectedStars); clearFieldError("e_rating"); });
+  s.addEventListener("mouseenter", ()=> previewStars(eStars, parseInt(s.dataset.v)));
+});
+eStarWrap.addEventListener("mouseleave", ()=> renderStars(eStars, editSelectedStars));
+
+function editRecord(id){
+  const list = getList();
+  const rec = list.find(r=> r.recordId === id);
+  if(!rec) return;
+  document.getElementById("editId").value = id;
+  e_empName.value = rec.name; e_empId.value = rec.id; e_email.value = rec.email;
+  e_department.value = rec.department; e_training.value = rec.training; e_trainer.value = rec.trainer;
+  e_comment.value = rec.comment;
+  editSelectedStars = parseInt(rec.rating);
+  renderStars(eStars, editSelectedStars);
+  clearAllErrors(document.getElementById("editForm"));
+  document.getElementById("editPanel").style.display = "block";
+  document.getElementById("editPanel").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function closeEditPanel(){ document.getElementById("editPanel").style.display = "none"; }
+
+document.getElementById("editForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  clearAllErrors(document.getElementById("editForm"));
+  const id = document.getElementById("editId").value;
+  const data = {
+    name: e_empName.value, id: e_empId.value, email: e_email.value,
+    department: e_department.value, training: e_training.value, trainer: e_trainer.value,
+    rating: editSelectedStars, comment: e_comment.value
+  };
+  if(!validateData(data, "e_")){
+    toast("Please fix the highlighted fields", "error");
+    return;
+  }
+  let list = getList();
+  const idx = list.findIndex(r=> r.recordId === id);
+  if(idx > -1){
+    list[idx] = {...list[idx], ...data};
+    saveList(list);
+    toast("Feedback updated successfully");
+  }
+  closeEditPanel();
+  render();
+});
+
+function deleteRecord(id){
+  if(!confirm("Delete this feedback record?")) return;
+  let list = getList().filter(r=> r.recordId !== id);
+  saveList(list);
+  toast("Record deleted", "error");
+  render();
+}
+
+/* ---------------- SEARCH ---------------- */
+document.getElementById("search").addEventListener("input", ()=>{ currentPage = 1; render(); });
+
+/* ---------------- CSV EXPORT ---------------- */
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+  const list = getFiltered();
+  if(!list.length){ toast("No records to export", "error"); return; }
+  const headers = ["Name","Employee ID","Email","Department","Training","Trainer","Rating","Comment","Submitted On"];
+  const rows = list.map(r=> [r.name,r.id,r.email,r.department,r.training,r.trainer,r.rating,'"'+ (r.comment||"").replace(/"/g,'""') +'"', new Date(r.timestamp).toLocaleString()]);
+  const csv = [headers.join(","), ...rows.map(r=>r.join(","))].join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "training_feedback_export.csv"; a.click();
+  URL.revokeObjectURL(url);
+  toast("CSV exported successfully");
+});
+
+/* ---------------- RENDER (ADMIN DASHBOARD) ---------------- */
+function getFiltered(){
+  const q = document.getElementById("search").value.toLowerCase();
+  return getList().filter(r=>
+    !q || [r.name,r.id,r.department,r.training,r.trainer].join(" ").toLowerCase().includes(q)
+  ).sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+}
+
+function render(){
+  const all = getList();
+  const filtered = getFiltered();
+
+  document.getElementById("statTotal").textContent = all.length;
+  const avg = all.length ? (all.reduce((s,r)=> s + Number(r.rating), 0) / all.length) : 0;
+  document.getElementById("statAvg").textContent = avg.toFixed(1);
+  document.getElementById("statDept").textContent = new Set(all.map(r=> r.department)).size;
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  document.getElementById("statWeek").textContent = all.filter(r=> new Date(r.timestamp).getTime() > weekAgo).length;
+
+  const circumference = 113;
+  document.getElementById("ringFg").style.strokeDashoffset = circumference - (avg/5)*circumference;
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  if(currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage-1)*PAGE_SIZE;
+  const pageItems = filtered.slice(start, start+PAGE_SIZE);
+
+  const tableBody = document.getElementById("tableData");
+  if(!pageItems.length){
+    tableBody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="big">🗂️</div>No feedback records found.</div></td></tr>`;
+  } else {
+    tableBody.innerHTML = pageItems.map(r=>`
+      <tr>
+        <td><div><strong>${escapeHtml(r.name)}</strong></div><div class="timestamp mono">${escapeHtml(r.id)}</div></td>
+        <td>${escapeHtml(r.department)}</td>
+        <td>${escapeHtml(r.training)}</td>
+        <td><span class="rating-pill">${"★".repeat(r.rating)} <span style="color:var(--ink-soft);font-weight:500;">${r.rating}/5</span></span></td>
+        <td class="timestamp mono">${formatDate(r.timestamp)}</td>
+        <td><div class="row-actions">
+          <button class="icon-btn" onclick="editRecord('${r.recordId}')">Edit</button>
+          <button class="icon-btn del" onclick="deleteRecord('${r.recordId}')">Delete</button>
+        </div></td>
+      </tr>
+    `).join("");
+  }
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages){
+  const box = document.getElementById("pagination");
+  if(totalPages <= 1){ box.innerHTML = ""; return; }
+  let html = "";
+  for(let i=1;i<=totalPages;i++){ html += `<button class="${i===currentPage?'active':''}" onclick="goToPage(${i})">${i}</button>`; }
+  box.innerHTML = html;
+}
+function goToPage(p){ currentPage = p; render(); }
+
+function formatDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-IN', {day:'2-digit',month:'short'}) + " · " + d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m=> ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+/* init */
+switchTab("employee");
+</script>
+</body>
+</html>
